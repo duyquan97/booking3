@@ -55,7 +55,6 @@ class BookingController extends AbstractFOSRestController
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
-        dd($request->request->all());
         $fromDate = date_create(Carbon::parse($request->request->get('fromDate'))->toDateString());
         $toDate   = date_create(Carbon::parse($request->request->get('toDate'))->toDateString());
         $roomID   = $request->request->get('roomId');
