@@ -7,6 +7,7 @@ use App\Repository\RoomsRepository;
 use Cocur\Slugify\Slugify;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,9 +28,11 @@ class RoomsController extends AbstractFOSRestController
      * @Rest\Get("/rooms/", name="rooms_index")
      * @param Request $request
      * @return View
+     * @IsGranted("ROLE_USER")
      */
     public function index(Request $request): View
     {
+
         $fromPrice = $request->query->get('fromPrice');
         $toPrice = $request->query->get('toPrice');
         $fromDate = $request->query->get('fromDate');

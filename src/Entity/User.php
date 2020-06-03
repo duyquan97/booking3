@@ -21,6 +21,7 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups("api")
      */
     private $id;
 
@@ -54,21 +55,11 @@ class User implements UserInterface
      */
     private $username;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $agreedTermsAt;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $token;
-
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    private $expiresAt;
-
 
 
     public function getId(): ?int
@@ -168,15 +159,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getAgreedTermsA(): ?\DateTimeInterface
-    {
-        return $this->agreedTermsAt;
-    }
-
-    public function agreeTerms()
-    {
-        $this->agreedTermsAt = new \DateTime();
-    }
 
     public function getToken(): ?string
     {
@@ -190,17 +172,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getExpiresAt(): ?\DateTimeInterface
-    {
-        return $this->expiresAt;
-    }
-
-    public function setExpiresAt(?\DateTimeInterface $expiresAt): self
-    {
-        $this->expiresAt = $expiresAt;
-
-        return $this;
-    }
 
 
 
