@@ -25,9 +25,10 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
+        $data = json_decode($request->getContent(),true);
         return [
-            'email' => $request->request->get("email"),
-            'password' => $request->request->get("password")
+            'email' => $data['email'],
+            'password' => $data['password']
             ];
 
     }

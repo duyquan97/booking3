@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Guests;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,22 +21,22 @@ class GuestsRepository extends ServiceEntityRepository
         parent::__construct($registry, Guests::class);
     }
 
-    // /**
-    //  * @return Guests[] Returns an array of Guests objects
-    //  */
-    /*
-    public function findByExampleField($value)
+     /**
+      * @return Guests[] Returns an array of Guests objects
+      */
+
+    public function getGuests()
     {
         return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
+            ->Join(User::class, 'u', Join::WITH, 'u.id = g.user')
             ->orderBy('g.id', 'ASC')
+            ->select('g.id','g.name','g.phone','g.email','u.id as user_id')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
-    */
+
 
     /*
     public function findOneBySomeField($value): ?Guests

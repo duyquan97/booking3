@@ -2,10 +2,11 @@
 
 namespace App\Controller\Rest;
 
-use App\Entity\Prices;
+
 use App\Entity\Rooms;
 use App\Entity\Stocks;
-use App\Repository\PricesRepository;
+use App\Form\PriceType;
+
 use App\Repository\RoomsRepository;
 use App\Repository\StocksRepository;
 use Carbon\Carbon;
@@ -43,24 +44,19 @@ class StockController extends AbstractFOSRestController
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
-        if (strtotime(Carbon::parse($request->request->get('fromDate'))->toDateString()) >= strtotime(Carbon::parse($request->request->get('toDate'))->toDateString())) {
+        $stocks = new Stocks();
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
             return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
         }
-        $stock =  new Stocks();
-        $stock->setAmount($request->request->get('amount'));
-        $stock->setFromDate(date_create($request->request->get('fromDate')));
-        $stock->setToDate(date_create($request->request->get('toDate')));
-        $stock->setRoom($this->roomsRepository->find($request->request->get('room')));
-
-        $errors = $validator->validate($stock);
-        if (count($errors) > 0) {
-            return View::create(['error' => $errors], Response::HTTP_BAD_REQUEST);
-        }
+        $form = $this->createForm( PriceType::class, $stocks);
+        $form->submit($data);
         $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($stock);
+        $entityManager->persist($stocks);
         $entityManager->flush();
 
-        if ($stock) {
+        if ($stocks) {
             return View::create(['message' => 'create success'], Response::HTTP_CREATED);
         }
     }
@@ -69,25 +65,19 @@ class StockController extends AbstractFOSRestController
     /**
      * @Rest\Patch("/stocks/{id}", name="stocks_edit")
      */
-    public function edit(int $id, Request $request, ValidatorInterface $validator): View
+    public function edit(Stocks $stocks, Request $request, ValidatorInterface $validator): View
     {
-        if (strtotime(Carbon::parse($request->request->get('fromDate'))->toDateString()) >= strtotime(Carbon::parse($request->request->get('toDate'))->toDateString())) {
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
             return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
         }
-        $stock = $this->stocksRepository->find($id);
-        $stock->setAmount($request->request->get('amount'));
-        $stock->setFromDate(date_create($request->request->get('fromDate')));
-        $stock->setToDate(date_create($request->request->get('toDate')));
-        $stock->setRoom($this->roomsRepository->find($request->request->get('room')));
-
-        $errors = $validator->validate($stock);
-        if (count($errors) > 0) {
-            return View::create(['error' => $errors], Response::HTTP_BAD_REQUEST);
-        }
+        $form = $this->createForm( PriceType::class, $stocks);
+        $form->submit($data);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->flush();
 
-        if ($stock) {
+        if ($stocks) {
             return View::create(['message' => 'update success'], Response::HTTP_CREATED);
         }
     }
@@ -95,9 +85,8 @@ class StockController extends AbstractFOSRestController
     /**
      * @Rest\Delete("/stocks/{id}", name="stocks_delete")
      */
-    public function delete(int $id  ): View
+    public function delete(Stocks $stock  ): View
     {
-        $stock = $this->stocksRepository->find($id);
         if ($stock) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($stock);

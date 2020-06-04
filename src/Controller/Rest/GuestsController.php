@@ -5,12 +5,15 @@ namespace App\Controller\Rest;
 use App\Entity\Guests;
 use App\Entity\Prices;
 use App\Entity\Rooms;
+use App\Form\GuestType;
 use App\Repository\GuestsRepository;
 use App\Repository\PricesRepository;
 use App\Repository\RoomsRepository;
 use Cocur\Slugify\Slugify;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\ErrorHandler\Error\FatalError;
 use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
 use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,69 +37,70 @@ class GuestsController extends AbstractFOSRestController
      */
     public function index(Request $request): View
     {
-        return View::create($this->guestsRepository->findAll(), Response::HTTP_OK);
+        return View::create($this->guestsRepository->getGuests(), Response::HTTP_OK);
     }
 
     /**
      * @Rest\Post("/guests", name="guests_new")
+     *
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
-        $guest =  new Guests();
-        $guest->setName($request->request->get('name'));
-        $guest->setPhone($request->request->get('phone'));
-        $guest->setEmail($request->request->get('email'));
+        $user = $this->getUser();
+        $guest = new Guests();
+        $body = $request->getContent();
+        $data = json_decode($body, true);
 
-        $errors = $validator->validate($guest);
-        if (count($errors) > 0) {
-            return View::create(['error' => $errors], Response::HTTP_BAD_REQUEST);
-        }
+        $form = $this->createForm( GuestType::class, $guest);
+        $form->submit($data);
+        $guest->setUser($user);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($guest);
         $entityManager->flush();
 
         if ($guest) {
             return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        }
     }
 
     /**
      * @Rest\get("/guests/{id}", name="guests_show")
      */
-    public function show(int $id): View
+    public function show(Guests $guest): View
     {
-        return View::create($this->guestsRepository->find($id), Response::HTTP_OK);
+        return View::create($guest, Response::HTTP_OK);
     }
 
 
     /**
      * @Rest\Patch("/guests/{id}", name="guests_edit")
      */
-    public function edit(int $id, Request $request, ValidatorInterface $validator): View
+    public function edit(Guests $guest, Request $request, ValidatorInterface $validator): View
     {
-        $guest = $this->guestsRepository->find($id);
-        $guest->setName($request->request->get('name'));
-        $guest->setEmail($request->request->get('email'));
-        $guest->setPhone($request->request->get('phone'));
+        try {
+            $body = $request->getContent();
+            $data = json_decode($body, true);
 
-        $errors = $validator->validate($guest);
-        if (count($errors) > 0) {
-            return View::create(['error' => $errors], Response::HTTP_BAD_REQUEST);
-        }
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->flush();
+            $form = $this->createForm( GuestType::class, $guest);
+            $form->submit($data);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->flush();
 
-        if ($guest) {
-            return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+            if ($guest) {
+                return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+            }
         }
+        catch (FatalError $exception) {
+            dd($exception);
+        }
+
     }
 
     /**
      * @Rest\Delete("/guests/{id}", name="guests_delete")
      */
-    public function delete(int $id  ): View
+    public function delete(Guests $guest ): View
     {
-        $guest = $this->guestsRepository->find($id);
         if ($guest) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($guest);

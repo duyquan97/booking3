@@ -18,9 +18,11 @@ use FOS\RestBundle\Controller\Annotations as Rest;
       */
      public function register(UserPasswordEncoderInterface $passwordEncoder, Request $request)
      {
-         $email = $request->request->get("email");
-         $password = $request->request->get("password");
-         $roles = explode(',', $request->request->get("role"));
+         $body = $request->getContent();
+         $data = json_decode($body,true);
+         $email = $data['email'];
+         $password = $data['password'];
+         $roles = explode(',', $data['role']);
          if ($password != $password) {
              $errors[] = "Password does not match the password confirmation.";
          }

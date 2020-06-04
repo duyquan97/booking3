@@ -23,7 +23,7 @@ class Prices
 
     /**
      * @ORM\Column(type="float", nullable=false)
-     * @Assert\NotBlank
+     *
      */
     private $price;
 
@@ -45,6 +45,7 @@ class Prices
 
     /**
      * @ORM\ManyToOne(targetEntity=Rooms::class)
+     * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank
      */
     private $room;

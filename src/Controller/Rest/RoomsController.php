@@ -3,6 +3,7 @@
 namespace App\Controller\Rest;
 
 use App\Entity\Rooms;
+use App\Form\RoomsType;
 use App\Repository\RoomsRepository;
 use Cocur\Slugify\Slugify;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -28,16 +29,15 @@ class RoomsController extends AbstractFOSRestController
      * @Rest\Get("/rooms/", name="rooms_index")
      * @param Request $request
      * @return View
-     * @IsGranted("ROLE_USER")
+     *
      */
     public function index(Request $request): View
     {
-
-        $fromPrice = $request->query->get('fromPrice');
-        $toPrice = $request->query->get('toPrice');
-        $fromDate = $request->query->get('fromDate');
-        $toDate = $request->query->get('toDate');
-        $data = $this->roomsRepository->findBySearch($fromPrice, $toPrice, $fromDate, $toDate);
+        $fromPrice = $request->query->get('fromPrice') ?? $fromPrice = 0;
+        $toPrice = $request->query->get('toPrice') ?? $toPrice = 0;
+        $fromDate = $request->query->get('fromDate') ?? $fromDate = '';
+        $toDate = $request->query->get('toDate') ?? $toDate = '';
+        $data = $this->roomsRepository->findBySearch( $fromPrice, $toPrice, $fromDate, $toDate);
 
         return View::create($data, Response::HTTP_OK);
     }
@@ -47,25 +47,14 @@ class RoomsController extends AbstractFOSRestController
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
-
         $slugify = new Slugify();
         $room =  new Rooms();
-        $room->setName($request->request->get('name'));
-        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
-        $room->setShortDescription($request->request->get('short_description'));
-        $room->setDescription($request->request->get('description'));
-        $room->setPerson($request->request->get('person'));
-        $room->setProvince($request->request->get('province'));
-        $room->setDistrict($request->request->get('district'));
-        $room->setStreet($request->request->get('street'));
-        $room->setStatus($request->request->get('status') ?? 1);
-        $room->setFeatured($request->request->get('featured') ?? 0);
-        $room->setType($request->request->get('type') ?? 1);
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form = $this->createForm( RoomsType::class, $room);
+        $form->submit($data);
 
-        $errors = $validator->validate($room);
-        if (count($errors) > 0) {
-            return View::create(['error' => $errors], Response::HTTP_BAD_REQUEST);
-        }
+        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($room);
         $entityManager->flush();
@@ -87,30 +76,21 @@ class RoomsController extends AbstractFOSRestController
     /**
      * @Rest\Patch("/rooms/{id}", name="rooms_edit")
      */
-    public function edit(int $id, Request $request, ValidatorInterface $validator): View
+    public function edit(Rooms $room, Request $request, ValidatorInterface $validator): View
     {
         $slugify = new Slugify();
-        $room = $this->roomsRepository->find($id);
-        $room->setName($request->request->get('name'));
-        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
-        $room->setShortDescription($request->request->get('short_description'));
-        $room->setDescription($request->request->get('description'));
-        $room->setPerson($request->request->get('person'));
-        $room->setProvince($request->request->get('province'));
-        $room->setDistrict($request->request->get('district'));
-        $room->setStreet($request->request->get('street'));
-        $room->setStatus($request->request->get('status') ?? 1);
-        $room->setFeatured($request->request->get('featured') ?? 0);
-        $room->setType($request->request->get('type') ?? 1);
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form = $this->createForm( RoomsType::class, $room);
+        $form->submit($data);
 
-        $errors = $validator->validate($room);
-        if (count($errors) > 0) {
-            return View::create(['error' => $errors], Response::HTTP_BAD_REQUEST);
-        }
+        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$data['name']));
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->flush();
 
-        return View::create(['message' => 'update success'], Response::HTTP_OK);
+        if ($room) {
+            return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+        }
     }
 
     /**

@@ -5,7 +5,9 @@ namespace App\Repository;
 use App\Entity\Prices;
 use App\Entity\Rooms;
 use App\Entity\Stocks;
+use Cassandra\Type;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\FloatType;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -26,7 +28,7 @@ class RoomsRepository extends ServiceEntityRepository
       * @return Rooms[] Returns an array of Rooms objects
       */
 
-    public function findBySearch($fromPrice, $toPrice, $fromDate, $toDate)
+    public function findBySearch(float $fromPrice, float $toPrice, $fromDate, $toDate)
     {
         $data = $this->createQueryBuilder('r')
                 ->Join(Prices::class, 'p', Join::WITH, 'r.id = p.room')
@@ -77,7 +79,7 @@ class RoomsRepository extends ServiceEntityRepository
             ->Join(Stocks::class, 's', Join::WITH, 'r.id = s.room')
             ->andWhere('s.room = :roomId')
             ->andWhere('p.room = :roomId')
-            ->setParameter('roomId',$roomId)
+            ->setParameter('roomId', $roomId)
             ->andWhere('s.fromDate >= p.fromDate AND s.toDate <= p.toDate')
             ->andWhere('s.fromDate >= :fromDate AND s.toDate <= :toDate')
             ->setParameter('fromDate', $fromDate)

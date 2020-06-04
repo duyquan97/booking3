@@ -23,18 +23,20 @@ class Booking
 
     /**
      * @ORM\ManyToOne(targetEntity=Guests::class)
+     * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank
      */
     private $guest;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
-     *
+     *@ORM\JoinColumn(nullable=false)
      */
     private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity=Rooms::class)
+     * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank
      */
     private $room;

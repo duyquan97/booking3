@@ -45,6 +45,7 @@ class Stocks
 
     /**
      * @ORM\ManyToOne(targetEntity=Rooms::class)
+     * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank
      */
     private $room;
