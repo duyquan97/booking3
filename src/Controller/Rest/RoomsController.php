@@ -51,10 +51,11 @@ class RoomsController extends AbstractFOSRestController
         $slugify = new Slugify();
         $room =  new Rooms();
         $form = $this->createForm( RoomsType::class, $room);
-        try {
-            $body = $request->getContent();
-            $data = json_decode($body, true);
-            $form->submit($data);
+
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
 
             $errors = $validator->validate($room);
@@ -70,9 +71,7 @@ class RoomsController extends AbstractFOSRestController
                 return View::create(['message' => 'create success'], Response::HTTP_CREATED);
             }
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-        }
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -91,37 +90,31 @@ class RoomsController extends AbstractFOSRestController
     {
         $slugify = new Slugify();
         $form = $this->createForm( RoomsType::class, $room);
-        try {
-            $body = $request->getContent();
-            $data = json_decode($body, true);
-            $form->submit($data);
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
 
             $errors = $validator->validate($room);
             if (count($errors) > 0) {
                 return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
             }
-
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($room);
             $entityManager->flush();
-
             if ($room) {
-                return View::create(['message' => 'update success'], Response::HTTP_OK);
+                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
             }
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-        }
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
     }
 
     /**
      * @Rest\Delete("/rooms/{id}", name="rooms_delete")
      * @IsGranted("ROLE_ADMIN")
      */
-    public function delete(int $id  ): View
+    public function delete(Rooms $room): View
     {
-        $room = $this->roomsRepository->find($id);
         if ($room) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($room);
@@ -129,5 +122,4 @@ class RoomsController extends AbstractFOSRestController
             return View::create(['message' => 'delete success'], Response::HTTP_OK);
         }
     }
-
 }

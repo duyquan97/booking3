@@ -36,16 +36,11 @@ class BookingController extends AbstractFOSRestController
 
     /**
      * @Rest\Get("/bookings/", name="bookings_index")
-     * @param Request $request
      */
     public function index(Request $request): View
     {
         $bookings = $this->bookingsRepository->getBooking();
-        if ($bookings) {
-            return View::create( $bookings, Response::HTTP_OK);
-        }
-        return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
-
+        return View::create( $bookings, Response::HTTP_OK);
     }
 
     /**
@@ -56,24 +51,21 @@ class BookingController extends AbstractFOSRestController
     {
         $booking = new Booking();
         $form = $this->createForm( BookingType::class, $booking);
-        try {
-            $user = $this->getUser();
-            $body = $request->getContent();
-            $data = json_decode($body, true);
-            $form->submit($data);
+        $user = $this->getUser();
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             $fromDate = date_create($data['fromDate']);
             $toDate   = date_create($data['toDate']);
             $roomID   = $data['room'];
             $amount   = $data['amount'];
-
-            if (strtotime($data['fromDate']) >= strtotime($data['toDate']) || strtotime($data['fromDate']) < strtotime('now')) {
-                return View::create(['error' => 'Invalid date!'], Response::HTTP_BAD_REQUEST);
-            }
-
             $datediff = abs(strtotime($data['fromDate']) - strtotime($data['toDate']));
             $countDay   = floor($datediff / (60 * 60 * 24));
+            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
+            }
             $listStocks = $this->roomsRepository->checkStock($roomID, $fromDate, $toDate, $amount);
-
             if (count($listStocks) == $countDay) {
                 $price = 0;
                 foreach ($listStocks as $stock) {
@@ -81,28 +73,20 @@ class BookingController extends AbstractFOSRestController
                     $stock = $this->stocksRepository->find($stock["id"]);
                     $stock->setAmount($stock->getAmount() - $amount);
                 }
-
                 $booking->setPrice($price);
                 $booking->setUser($user);
 
-                $errors = $validator->validate($booking);
-                if (count($errors) > 0) {
-                    return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-                }
-
                 $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->persist($booking);
                 $entityManager->flush();
 
                 if ($booking) {
                     return View::create(['message' => 'create success'], Response::HTTP_CREATED);
                 }
+            } else {
+                return View::create(['error' => 'The date you selected is not enough rooms!'], Response::HTTP_BAD_REQUEST);
             }
-            return View::create(['error' => 'The date you selected is not enough rooms!'], Response::HTTP_BAD_REQUEST);
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_FORBIDDEN);
-        }
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -124,10 +108,11 @@ class BookingController extends AbstractFOSRestController
     public function edit(Booking $booking, Request $request, ValidatorInterface $validator): View
     {
         $form = $this->createForm( BookingType::class, $booking);
-        try {
-            $user = $this->getUser();
-            $body = $request->getContent();
-            $data = json_decode($body, true);
+        $user = $this->getUser();
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             $fromDate = date_create($data['fromDate']);
             $toDate   = date_create($data['toDate']);
             $roomID   = $data['room'];
@@ -147,16 +132,8 @@ class BookingController extends AbstractFOSRestController
                     $stock = $this->stocksRepository->find($stock["id"]);
                     $stock->setAmount($stock->getAmount() - $amount);
                 }
-
-                $form->submit($data);
                 $booking->setPrice($price);
                 $booking->setUser($user);
-
-
-                $errors = $validator->validate($booking);
-                if (count($errors) > 0) {
-                    return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-                }
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->flush();
@@ -168,9 +145,7 @@ class BookingController extends AbstractFOSRestController
                 return View::create(['error' => 'The date you selected is not enough rooms!'], Response::HTTP_BAD_REQUEST);
             }
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_FORBIDDEN);
-        }
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -185,7 +160,5 @@ class BookingController extends AbstractFOSRestController
             $entityManager->flush();
             return View::create(['message' => 'delete success'], Response::HTTP_OK);
         }
-        return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
-
     }
 }

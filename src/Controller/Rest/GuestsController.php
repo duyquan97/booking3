@@ -52,29 +52,23 @@ class GuestsController extends AbstractFOSRestController
     {
         $guest = new Guests();
         $form = $this->createForm( GuestType::class, $guest);
-        try {
-            $user = $this->getUser();
-            $body = $request->getContent();
-            $data = json_decode($body, true);
-            $form->submit($data);
+        $user = $this->getUser();
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+
+        if ($form->isSubmitted() && $form->isValid() ) {
             $guest->setUser($user);
-
-            $errors = $validator->validate($guest);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($guest);
             $entityManager->flush();
 
             if ($guest) {
-            return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
             }
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-        }
+
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -92,23 +86,20 @@ class GuestsController extends AbstractFOSRestController
     public function edit(Guests $guest, Request $request, ValidatorInterface $validator): View
     {
         $form = $this->createForm( GuestType::class, $guest);
-        try {
-            $user = $this->getUser();
-            $body = $request->getContent();
-            $data = json_decode($body, true);
-            $form->submit($data);
+
+        $user = $this->getUser();
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             $guest->setUser($user);
             $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($guest);
             $entityManager->flush();
             if ($guest) {
                 return View::create(['message' => 'update success'], Response::HTTP_OK);
             }
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-        }
-
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
     }
 
     /**

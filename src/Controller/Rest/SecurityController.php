@@ -2,6 +2,8 @@
 namespace App\Controller\Rest;
 
 use App\Entity\User;
+use App\Form\RegisterType;
+use App\Form\RoomsType;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
@@ -20,22 +22,26 @@ use FOS\RestBundle\Controller\Annotations as Rest;
       */
      public function register(UserPasswordEncoderInterface $passwordEncoder, Request $request)
      {
+         $user = new User();
          $body = $request->getContent();
          $data = json_decode($body,true);
-         $email = $data['email'];
-         $password = $data['password'];
-         $role = $data['role'];
-             $user = new User();
-             $encodedPassword = $passwordEncoder->encodePassword($user, $password);
-             $user->setEmail($email);
-             $user->setRoles($role);
-             $user->setPassword($encodedPassword);
 
+         $form = $this->createForm( RegisterType::class, $user);
+
+         $form->submit($data);
+
+         if ($form->isSubmitted() && $form->isValid()) {
+             $encodedPassword = $passwordEncoder->encodePassword($user, $data['password']);
+             $user->setPassword($encodedPassword);
+             $user->setRoles(['ROLE_USER']);
              $entityManager = $this->getDoctrine()->getManager();
              $entityManager->persist($user);
              $entityManager->flush();
-
-         return View::create(['message' => 'create user success'], Response::HTTP_OK);
+             if ($user) {
+                 return View::create(['message' => 'create user success'], Response::HTTP_OK);
+             }
+         }
+         return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
      }
 
      /**

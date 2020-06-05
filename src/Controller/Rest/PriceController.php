@@ -34,12 +34,7 @@ class PriceController extends AbstractFOSRestController
      */
     public function index(Request $request): View
     {
-        try {
-            return View::create($this->pricesRepository->findAll(), Response::HTTP_OK);
-        }
-        catch (\Exception $exception) {
-            return View::create(['error' => $exception], Response::HTTP_FORBIDDEN);
-        }
+        return View::create($this->pricesRepository->findAll(), Response::HTTP_OK);
     }
 
     /**
@@ -49,11 +44,11 @@ class PriceController extends AbstractFOSRestController
     {
         $price = new Prices();
         $form = $this->createForm( PriceType::class, $price);
-        try {
-            $body = $request->getContent();
-            $data = json_decode($body, true);
-            $form->submit($data);
 
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
                 return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
             }
@@ -71,9 +66,7 @@ class PriceController extends AbstractFOSRestController
                 return View::create(['message' => 'create success'], Response::HTTP_CREATED);
             }
         }
-        catch ( \Exception $e) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-        }
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -82,19 +75,18 @@ class PriceController extends AbstractFOSRestController
     public function edit(Prices $price, Request $request, ValidatorInterface $validator): View
     {
         $form = $this->createForm( PriceType::class, $price);
-        try {
-            $body = $request->getContent();
-            $data = json_decode($body, true);
+
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+        $form->submit($data);
+        if ($form->isSubmitted() && $form->isValid()) {
             if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
                 return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
             }
-
             $errors = $validator->validate($price);
             if (count($errors) > 0) {
                 return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
             }
-
-            $form->submit($data);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->flush();
 
@@ -102,9 +94,7 @@ class PriceController extends AbstractFOSRestController
                 return View::create(['message' => 'update success'], Response::HTTP_OK);
             }
         }
-        catch ( \Exception $e) {
-            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-        }
+        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -112,17 +102,11 @@ class PriceController extends AbstractFOSRestController
      */
     public function delete(Prices $price  ): View
     {
-        try {
-            if ($price) {
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->remove($price);
-                $entityManager->flush();
-                return View::create(['message' => 'delete success'], Response::HTTP_OK);
-            }
+        if ($price) {
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($price);
+            $entityManager->flush();
+            return View::create(['message' => 'delete success'], Response::HTTP_OK);
         }
-        catch (\Exception $exception) {
-            return View::create(['error' => $exception], Response::HTTP_FORBIDDEN);
-        }
-
     }
 }

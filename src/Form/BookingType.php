@@ -66,7 +66,7 @@ class BookingType extends AbstractType
                 ]
             ])
             ->add(
-                $builder->create('room',TextType::class,[
+                $builder->create('room',NumberType::class,[
                     'invalid_message' => 'That is not a valid room number',
                     'required' => true,
                     'constraints' => [
