@@ -57,7 +57,13 @@ class RoomsType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('type',NumberType::class)
+            ->add('type',NumberType::class,[
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'fromDate not blank'
+                    ]),
+                ]
+            ])
             ->add('status',NumberType::class)
             ->add('featured',NumberType::class)
         ;
@@ -67,6 +73,7 @@ class RoomsType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Rooms::class,
+            'csrf_protection'   => false
         ]);
     }
 }

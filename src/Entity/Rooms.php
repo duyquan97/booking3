@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=RoomsRepository::class)
- * @UniqueEntity("slug")
+ * @UniqueEntity("slug", message="This slug is already used")
  */
 class Rooms
 {
@@ -24,7 +24,7 @@ class Rooms
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank(message="Name not null")
+     *
      *
      */
     private $name;
@@ -47,25 +47,25 @@ class Rooms
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank
+     *
      */
     private $province;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank
+     *
      */
     private $district;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank
+     *
      */
     private $street;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Assert\NotBlank
+     *
      * @Assert\Positive
      */
     private $person;

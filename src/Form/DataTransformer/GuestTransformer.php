@@ -18,21 +18,21 @@ class GuestTransformer implements DataTransformerInterface
     {
         $this->guestsRepository = $guestsRepository;
     }
-    public function transform($room)
+    public function transform($guest)
     {
-        if (null === $room) {
+        if (null === $guest) {
             return '';
         }
-        return $room->getId();
+        return $guest->getId();
     }
-    public function reverseTransform($roomId)
+    public function reverseTransform($guestId)
     {
-        if (!$roomId) {
+        if (!$guestId) {
             return;
         }
-        $guest = $this->guestsRepository->find($roomId);
+        $guest = $this->guestsRepository->find($guestId);
         if (null === $guest) {
-            $privateErrorMessage = sprintf('An guest with number "%s" does not exist!', $roomId);
+            $privateErrorMessage = sprintf('An guest with number "%s" does not exist!', $guestId);
             $publicErrorMessage = 'The given "{{ value }}" value is not a valid room number.';
 
             $failure = new TransformationFailedException($privateErrorMessage);

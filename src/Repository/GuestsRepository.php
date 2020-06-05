@@ -37,6 +37,18 @@ class GuestsRepository extends ServiceEntityRepository
         ;
     }
 
+    public function listGuestBooking ($guest) {
+        return $this->createQueryBuilder('g')
+            ->andWhere('g.id IN :array')
+            ->setParameter('array',$guest)
+            ->orderBy('g.id', 'ASC')
+            ->select('g.id','g.name','g.phone','g.email')
+            ->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
 
     /*
     public function findOneBySomeField($value): ?Guests

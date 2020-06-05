@@ -48,6 +48,7 @@ class GuestType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Guests::class,
+            'csrf_protection'   => false
         ]);
     }
 }

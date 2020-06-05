@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=StocksRepository::class)
- * @UniqueEntity(fields={"fromDate","room"})
- * @UniqueEntity(fields={"toDate","room"})
+ * @UniqueEntity(fields={"fromDate","room"}, message="This date is already used")
+ * @UniqueEntity(fields={"toDate","room"}, message="This date is already used")
  */
 class Stocks
 {

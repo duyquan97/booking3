@@ -34,7 +34,12 @@ class PriceController extends AbstractFOSRestController
      */
     public function index(Request $request): View
     {
-        return View::create($this->pricesRepository->findAll(), Response::HTTP_OK);
+        try {
+            return View::create($this->pricesRepository->findAll(), Response::HTTP_OK);
+        }
+        catch (\Exception $exception) {
+            return View::create(['error' => $exception], Response::HTTP_FORBIDDEN);
+        }
     }
 
     /**
@@ -42,16 +47,22 @@ class PriceController extends AbstractFOSRestController
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
+        $price = new Prices();
+        $form = $this->createForm( PriceType::class, $price);
         try {
             $body = $request->getContent();
             $data = json_decode($body, true);
-            $price = new Prices();
-            $form = $this->createForm( PriceType::class, $price);
             $form->submit($data);
 
             if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
                 return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
             }
+
+            $errors = $validator->validate($price);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($price);
             $entityManager->flush();
@@ -61,7 +72,7 @@ class PriceController extends AbstractFOSRestController
             }
         }
         catch ( \Exception $e) {
-            return View::create(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -70,24 +81,29 @@ class PriceController extends AbstractFOSRestController
      */
     public function edit(Prices $price, Request $request, ValidatorInterface $validator): View
     {
+        $form = $this->createForm( PriceType::class, $price);
         try {
             $body = $request->getContent();
             $data = json_decode($body, true);
             if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
                 return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
             }
-            $form = $this->createForm( PriceType::class, $price);
+
+            $errors = $validator->validate($price);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+
             $form->submit($data);
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->flush();
 
             if ($price) {
-                return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+                return View::create(['message' => 'update success'], Response::HTTP_OK);
             }
         }
         catch ( \Exception $e) {
-
-            return View::create(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -96,11 +112,17 @@ class PriceController extends AbstractFOSRestController
      */
     public function delete(Prices $price  ): View
     {
-        if ($price) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($price);
-            $entityManager->flush();
-            return View::create(['message' => 'delete success'], Response::HTTP_OK);
+        try {
+            if ($price) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->remove($price);
+                $entityManager->flush();
+                return View::create(['message' => 'delete success'], Response::HTTP_OK);
+            }
         }
+        catch (\Exception $exception) {
+            return View::create(['error' => $exception], Response::HTTP_FORBIDDEN);
+        }
+
     }
 }

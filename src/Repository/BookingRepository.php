@@ -32,9 +32,9 @@ class BookingRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('b')
             ->Join(Rooms::class, 'r', Join::WITH, 'r.id = b.room')
-            ->Join(Guests::class, 'g', Join::WITH, 'g.id = b.guest')
+//            ->Join(Guests::class, 'g', Join::WITH, 'g.id = b.guest')
             ->Join(User::class, 'u', Join::WITH, 'u.id = b.user')
-            ->select('b.id','b.code','b.price','b.fromDate','b.toDate','b.amount','b.accept','r.id as room_id','g.id as guest_id','u.id as user_id')
+            ->select('b.id','b.code','b.price','b.fromDate','b.toDate','b.amount','b.accept','r.id as room_id','u.id as user_id')
             ->orderBy('b.id', 'ASC')
             ->getQuery()
             ->getResult()

@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=GuestsRepository::class)
- *  * @UniqueEntity("email")
+ *  * @UniqueEntity("email",message="This email is already used")
  */
 class Guests
 {
@@ -22,26 +22,17 @@ class Guests
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank
+     *
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank
-     * @Assert\Length(
-     *      min = 10,
-     *      max = 12,
-     *      minMessage = "Phone number must be at least {{ limit }} characters long",
-     *      maxMessage = "Phone number cannot be longer than {{ limit }} characters",
-     * )
      */
     private $phone;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank
-     * @Assert\Email
      */
     private $email;
 

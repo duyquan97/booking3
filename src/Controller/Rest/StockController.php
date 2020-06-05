@@ -7,6 +7,7 @@ use App\Entity\Rooms;
 use App\Entity\Stocks;
 use App\Form\PriceType;
 
+use App\Form\StockType;
 use App\Repository\RoomsRepository;
 use App\Repository\StocksRepository;
 use Carbon\Carbon;
@@ -36,7 +37,12 @@ class StockController extends AbstractFOSRestController
      */
     public function index(): View
     {
-        return View::create($this->stocksRepository->findAll(), Response::HTTP_OK);
+        $room = $this->stocksRepository->findAll();
+        if ($room) {
+            return View::create( $room, Response::HTTP_OK);
+        }
+        return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
+
     }
 
     /**
@@ -45,20 +51,30 @@ class StockController extends AbstractFOSRestController
     public function new(Request $request, ValidatorInterface $validator): View
     {
         $stocks = new Stocks();
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
-            return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
-        }
-        $form = $this->createForm( PriceType::class, $stocks);
-        $form->submit($data);
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($stocks);
-        $entityManager->flush();
+        $form = $this->createForm( StockType::class, $stocks);
+        try {
+            $body = $request->getContent();
+            $data = json_decode($body, true);
+            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
+            }
+            $form->submit($data);
+            $errors = $validator->validate($stocks);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($stocks);
+            $entityManager->flush();
 
-        if ($stocks) {
-            return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+            if ($stocks) {
+                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+            }
         }
+        catch (\Exception $exception) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        }
+
     }
 
 
@@ -67,18 +83,30 @@ class StockController extends AbstractFOSRestController
      */
     public function edit(Stocks $stocks, Request $request, ValidatorInterface $validator): View
     {
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
-            return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
-        }
-        $form = $this->createForm( PriceType::class, $stocks);
-        $form->submit($data);
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->flush();
+        $form = $this->createForm( StockType::class, $stocks);
+        try {
+            $body = $request->getContent();
+            $data = json_decode($body, true);
+            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
+            }
+            $form->submit($data);
 
-        if ($stocks) {
-            return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+            $errors = $validator->validate($stocks);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($stocks);
+            $entityManager->flush();
+
+            if ($stocks) {
+                return View::create(['message' => 'update success'], Response::HTTP_OK);
+            }
+        }
+        catch (\Exception $exception) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -87,12 +115,19 @@ class StockController extends AbstractFOSRestController
      */
     public function delete(Stocks $stock  ): View
     {
-        if ($stock) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($stock);
-            $entityManager->flush();
-            return View::create(['message' => 'delete success'], Response::HTTP_OK);
+        try {
+            if ($stock) {
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->remove($stock);
+                $entityManager->flush();
+                return View::create(['message' => 'delete success'], Response::HTTP_OK);
+            }
         }
+        catch (\Exception $exception) {
+            return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
+        }
+
+
     }
 
 }

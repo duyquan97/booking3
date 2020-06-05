@@ -37,7 +37,11 @@ class GuestsController extends AbstractFOSRestController
      */
     public function index(Request $request): View
     {
-        return View::create($this->guestsRepository->getGuests(), Response::HTTP_OK);
+        $guest = $this->guestsRepository->getGuests();
+        if ($guest) {
+            return View::create($this->guestsRepository->getGuests(), Response::HTTP_OK);
+        }
+        return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -46,20 +50,30 @@ class GuestsController extends AbstractFOSRestController
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
-        $user = $this->getUser();
         $guest = new Guests();
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-
         $form = $this->createForm( GuestType::class, $guest);
-        $form->submit($data);
-        $guest->setUser($user);
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($guest);
-        $entityManager->flush();
+        try {
+            $user = $this->getUser();
+            $body = $request->getContent();
+            $data = json_decode($body, true);
+            $form->submit($data);
+            $guest->setUser($user);
 
-        if ($guest) {
+            $errors = $validator->validate($guest);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($guest);
+            $entityManager->flush();
+
+            if ($guest) {
             return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+            }
+        }
+        catch (\Exception $exception) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -77,21 +91,22 @@ class GuestsController extends AbstractFOSRestController
      */
     public function edit(Guests $guest, Request $request, ValidatorInterface $validator): View
     {
+        $form = $this->createForm( GuestType::class, $guest);
         try {
+            $user = $this->getUser();
             $body = $request->getContent();
             $data = json_decode($body, true);
-
-            $form = $this->createForm( GuestType::class, $guest);
             $form->submit($data);
+            $guest->setUser($user);
             $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($guest);
             $entityManager->flush();
-
             if ($guest) {
-                return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+                return View::create(['message' => 'update success'], Response::HTTP_OK);
             }
         }
-        catch (FatalError $exception) {
-            dd($exception);
+        catch (\Exception $exception) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
 
     }
@@ -107,5 +122,6 @@ class GuestsController extends AbstractFOSRestController
             $entityManager->flush();
             return View::create(['message' => 'delete success'], Response::HTTP_OK);
         }
+        return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
     }
 }

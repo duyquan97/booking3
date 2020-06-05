@@ -6,10 +6,10 @@ use App\Entity\Stocks;
 use App\Form\DataTransformer\RoomTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Date;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class StockType extends AbstractType
@@ -23,7 +23,7 @@ class StockType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('amount', NumberType::class, [
+            ->add('amount', TextType::class, [
                 'constraints' => [
                     new NotBlank([
                         'message' => 'toDate not blank'
@@ -67,6 +67,7 @@ class StockType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Stocks::class,
+            'csrf_protection'   => false
         ]);
     }
 }

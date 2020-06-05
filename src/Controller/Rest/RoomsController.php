@@ -44,25 +44,35 @@ class RoomsController extends AbstractFOSRestController
 
     /**
      * @Rest\Post("/rooms", name="rooms_new")
+     * @IsGranted("ROLE_ADMIN")
      */
     public function new(Request $request, ValidatorInterface $validator): View
     {
         $slugify = new Slugify();
         $room =  new Rooms();
-        $body = $request->getContent();
-        $data = json_decode($body, true);
         $form = $this->createForm( RoomsType::class, $room);
-        $form->submit($data);
+        try {
+            $body = $request->getContent();
+            $data = json_decode($body, true);
+            $form->submit($data);
+            $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
 
-        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($room);
-        $entityManager->flush();
+            $errors = $validator->validate($room);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
 
-        if ($room) {
-            return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($room);
+            $entityManager->flush();
+
+            if ($room) {
+                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+            }
         }
-
+        catch (\Exception $exception) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
@@ -74,27 +84,40 @@ class RoomsController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Patch("/rooms/{id}", name="rooms_edit")
+     * @Rest\Patch("/rooms/{id}", name="rooms_edit")\
+     * @IsGranted("ROLE_ADMIN")
      */
     public function edit(Rooms $room, Request $request, ValidatorInterface $validator): View
     {
         $slugify = new Slugify();
-        $body = $request->getContent();
-        $data = json_decode($body, true);
         $form = $this->createForm( RoomsType::class, $room);
-        $form->submit($data);
+        try {
+            $body = $request->getContent();
+            $data = json_decode($body, true);
+            $form->submit($data);
+            $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
 
-        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$data['name']));
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->flush();
+            $errors = $validator->validate($room);
+            if (count($errors) > 0) {
+                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
+            }
 
-        if ($room) {
-            return View::create(['message' => 'update success'], Response::HTTP_CREATED);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($room);
+            $entityManager->flush();
+
+            if ($room) {
+                return View::create(['message' => 'update success'], Response::HTTP_OK);
+            }
+        }
+        catch (\Exception $exception) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
     }
 
     /**
      * @Rest\Delete("/rooms/{id}", name="rooms_delete")
+     * @IsGranted("ROLE_ADMIN")
      */
     public function delete(int $id  ): View
     {

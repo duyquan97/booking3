@@ -9,8 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PricesRepository::class)
- * @UniqueEntity(fields={"fromDate","room"})
- * @UniqueEntity(fields={"toDate","room"})
+ * @UniqueEntity(fields={"fromDate","room"}, message="This date is already used")
+ * @UniqueEntity(fields={"toDate","room"}, message="This date is already used")
  */
 class Prices
 {
@@ -29,7 +29,7 @@ class Prices
 
     /**
      * @ORM\Column(type="date", nullable=false)
-     * @Assert\NotBlank
+     *
      * @Assert\Date
      * @var string A "Y-m-d" formatted value
      */
@@ -37,7 +37,7 @@ class Prices
 
     /**
      * @ORM\Column(type="date", nullable=false)
-     * @Assert\NotBlank
+     *
      * @Assert\Date
      * @var string A "Y-m-d" formatted value
      */
@@ -46,7 +46,7 @@ class Prices
     /**
      * @ORM\ManyToOne(targetEntity=Rooms::class)
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotBlank
+     *
      */
     private $room;
 

@@ -3,13 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\BookingRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=BookingRepository::class)
- * @UniqueEntity("code")
+ * @UniqueEntity("code", message="This code is already used")
  *
  */
 class Booking
@@ -22,13 +24,6 @@ class Booking
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Guests::class)
-     * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotBlank
-     */
-    private $guest;
-
-    /**
      * @ORM\ManyToOne(targetEntity=User::class)
      *@ORM\JoinColumn(nullable=false)
      */
@@ -37,7 +32,6 @@ class Booking
     /**
      * @ORM\ManyToOne(targetEntity=Rooms::class)
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotBlank
      */
     private $room;
 
@@ -49,19 +43,16 @@ class Booking
 
     /**
      * @ORM\Column(type="date")
-     * @Assert\NotBlank
      */
     private $fromDate;
 
     /**
      * @ORM\Column(type="date")
-     * @Assert\NotBlank
      */
     private $toDate;
 
     /**
      * @ORM\Column(type="integer")
-     * @Assert\NotBlank
      */
     private $amount;
 
@@ -83,26 +74,19 @@ class Booking
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank
      */
     private $code;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Guests::class)
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $guest;
 
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getGuest(): ?Guests
-    {
-        return $this->guest;
-    }
-
-    public function setGuest(?Guests $guest): self
-    {
-        $this->guest = $guest;
-
-        return $this;
     }
 
     public function getUser(): ?User
@@ -224,5 +208,19 @@ class Booking
 
         return $this;
     }
+
+    public function getGuest(): ?Guests
+    {
+        return $this->guest;
+    }
+
+    public function setGuest(?Guests $guest): self
+    {
+        $this->guest = $guest;
+
+        return $this;
+    }
+
+
 
 }

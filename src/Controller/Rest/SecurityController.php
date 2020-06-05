@@ -5,6 +5,7 @@ use App\Entity\User;
 use Doctrine\Common\Persistence\ObjectManager;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -15,6 +16,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
  {
      /**
       * @Rest\Post("/register", name="api_register")
+      *
       */
      public function register(UserPasswordEncoderInterface $passwordEncoder, Request $request)
      {
@@ -22,25 +24,16 @@ use FOS\RestBundle\Controller\Annotations as Rest;
          $data = json_decode($body,true);
          $email = $data['email'];
          $password = $data['password'];
-         $roles = explode(',', $data['role']);
-         if ($password != $password) {
-             $errors[] = "Password does not match the password confirmation.";
-         }
-         if (strlen($password) < 6) {
-             $errors[] = "Password should be at least 6 characters.";
-         }
-
-         if (!$errors) {
+         $role = $data['role'];
              $user = new User();
              $encodedPassword = $passwordEncoder->encodePassword($user, $password);
              $user->setEmail($email);
-             $user->setRoles($roles);
+             $user->setRoles($role);
              $user->setPassword($encodedPassword);
 
              $entityManager = $this->getDoctrine()->getManager();
              $entityManager->persist($user);
              $entityManager->flush();
-         }
 
          return View::create(['message' => 'create user success'], Response::HTTP_OK);
      }
