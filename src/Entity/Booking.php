@@ -25,7 +25,7 @@ class Booking
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class)
-     *@ORM\JoinColumn(nullable=false)
+     *@ORM\JoinColumn(nullable=true)
      */
     private $user;
 
@@ -36,8 +36,8 @@ class Booking
     private $room;
 
     /**
-     * @ORM\Column(type="float")
-     * @Assert\NotBlank
+     * @ORM\Column(type="float", nullable=true)
+     *
      */
     private $price;
 
@@ -73,7 +73,7 @@ class Booking
     private $updatedAt;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $code;
 
@@ -220,7 +220,4 @@ class Booking
 
         return $this;
     }
-
-
-
 }

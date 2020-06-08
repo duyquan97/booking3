@@ -2,120 +2,109 @@
 
 namespace App\Controller\Rest;
 
-
-use App\Entity\Rooms;
 use App\Entity\Stocks;
-use App\Form\PriceType;
-
 use App\Form\StockType;
 use App\Repository\RoomsRepository;
 use App\Repository\StocksRepository;
-use Carbon\Carbon;
-use Cocur\Slugify\Slugify;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
-use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
-use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 
 class StockController extends AbstractFOSRestController
 {
     private $stocksRepository;
     private $roomsRepository;
-    public function __construct(StocksRepository $stocksRepository, RoomsRepository $roomsRepository)
-    {
+    private $em;
+
+    public function __construct(
+        StocksRepository $stocksRepository,
+        RoomsRepository $roomsRepository,
+        EntityManagerInterface $em
+    ) {
         $this->stocksRepository = $stocksRepository;
         $this->roomsRepository = $roomsRepository;
+        $this->em = $em;
     }
 
     /**
      * @Rest\Get("/stocks/", name="stocks_index")
+     * @return View
      */
     public function index(): View
     {
         $room = $this->stocksRepository->findAll();
-        if ($room) {
-            return View::create( $room, Response::HTTP_OK);
-        }
+
+        return View::create($room, Response::HTTP_OK);
     }
 
     /**
      * @Rest\Post("/stocks", name="stocks_new")
+     * @param Request $request
+     * @return View
      */
-    public function new(Request $request, ValidatorInterface $validator): View
+    public function new(Request $request): View
     {
         $stocks = new Stocks();
-        $form = $this->createForm( StockType::class, $stocks);
+        $form = $this->createForm(StockType::class, $stocks);
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
-                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
-            }
-            $errors = $validator->validate($stocks);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($stocks);
-            $entityManager->flush();
-            if ($stocks) {
-                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
-    }
+        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+            return View::create(
+                ['error' => 'The start date must be greater than the end date!'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $this->em->persist($stocks);
+        $this->em->flush();
 
+        return View::create(['message' => 'create success'], Response::HTTP_CREATED);
+    }
 
     /**
      * @Rest\Patch("/stocks/{id}", name="stocks_edit")
+     * @param Stocks $stocks
+     * @param Request $request
+     * @return  View
      */
-    public function edit(Stocks $stocks, Request $request, ValidatorInterface $validator): View
+    public function edit(Stocks $stocks, Request $request): View
     {
-        $form = $this->createForm( StockType::class, $stocks);
+        $form = $this->createForm(StockType::class, $stocks);
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
-                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
-            }
-            $errors = $validator->validate($stocks);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
-            if ($stocks) {
-                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+            return View::create(
+                ['error' => 'The start date must be greater than the end date!'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $this->em->flush();
+
+        return View::create(['message' => 'create success'], Response::HTTP_CREATED);
     }
 
     /**
      * @Rest\Delete("/stocks/{id}", name="stocks_delete")
+     * @param Stocks $stock
+     * @return View
      */
-    public function delete(Stocks $stock  ): View
+    public function delete(Stocks $stock): View
     {
-        try {
-            if ($stock) {
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->remove($stock);
-                $entityManager->flush();
-                return View::create(['message' => 'delete success'], Response::HTTP_OK);
-            }
-        }
-        catch (\Exception $exception) {
-            return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
+        if ($stock) {
+            $this->em->remove($stock);
+            $this->em->flush();
         }
 
-
+        return View::create(['message' => 'delete success'], Response::HTTP_OK);
     }
-
 }

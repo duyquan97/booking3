@@ -28,7 +28,7 @@ class BookingType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('amount', NumberType::class,[
+            ->add('amount', NumberType::class, [
                 'constraints' => [
                     new NotBlank([
                         'message' => 'amount not blank'
@@ -36,7 +36,7 @@ class BookingType extends AbstractType
                 ]
             ])
             ->add(
-                $builder->create('guest',TextType::class,[
+                $builder->create('guest', TextType::class, [
                     'invalid_message' => 'That is not a valid room number',
                     'required' => true,
                     'constraints' => [
@@ -44,8 +44,9 @@ class BookingType extends AbstractType
                             'message' => 'guest not blank'
                         ]),
                     ]])
-                    ->addModelTransformer($this->guestTransformer))
-            ->add('fromDate', DateType::class,[
+                ->addModelTransformer($this->guestTransformer)
+            )
+            ->add('fromDate', DateType::class, [
                 'required' => true,
                 'widget' => 'single_text',
                 'html5' => false,
@@ -55,7 +56,7 @@ class BookingType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('toDate',DateType::class,[
+            ->add('toDate', DateType::class, [
                 'required' => true,
                 'widget' => 'single_text',
                 'html5' => false,
@@ -66,7 +67,7 @@ class BookingType extends AbstractType
                 ]
             ])
             ->add(
-                $builder->create('room',NumberType::class,[
+                $builder->create('room', TextType::class, [
                     'invalid_message' => 'That is not a valid room number',
                     'required' => true,
                     'constraints' => [
@@ -74,7 +75,8 @@ class BookingType extends AbstractType
                             'message' => 'room not blank'
                         ]),
                     ]])
-                    ->addModelTransformer($this->roomTransformer))
+                ->addModelTransformer($this->roomTransformer)
+            )
             ->addEventSubscriber(new BookingListener())
         ;
     }

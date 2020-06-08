@@ -25,12 +25,11 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function getCredentials(Request $request)
     {
-        $data = json_decode($request->getContent(),true);
+        $data = json_decode($request->getContent(), true);
         return [
             'email' => $data['email'],
             'password' => $data['password']
             ];
-
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
@@ -45,7 +44,6 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-
         return new JsonResponse([
             'error' => $exception->getMessageKey()
         ], 400);
@@ -68,6 +66,5 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     public function supportsRememberMe()
     {
         return false;
-
     }
 }

@@ -3,28 +3,30 @@
 namespace App\Controller\Rest;
 
 use App\Entity\Prices;
-use App\Entity\Rooms;
 use App\Form\PriceType;
 use App\Repository\PricesRepository;
 use App\Repository\RoomsRepository;
-
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-
 
 class PriceController extends AbstractFOSRestController
 {
     private $pricesRepository;
     private $roomsRepository;
-    public function __construct(PricesRepository $pricesRepository, RoomsRepository $roomsRepository)
-    {
+    private $em;
+
+    public function __construct(
+        PricesRepository $pricesRepository,
+        RoomsRepository $roomsRepository,
+        EntityManagerInterface $em
+    ) {
         $this->pricesRepository = $pricesRepository;
         $this->roomsRepository = $roomsRepository;
+        $this->em = $em;
     }
 
     /**
@@ -39,74 +41,70 @@ class PriceController extends AbstractFOSRestController
 
     /**
      * @Rest\Post("/prices", name="prices_new")
+     * @param Request $request
+     * @return View
      */
-    public function new(Request $request, ValidatorInterface $validator): View
+    public function new(Request $request): View
     {
         $price = new Prices();
-        $form = $this->createForm( PriceType::class, $price);
-
+        $form = $this->createForm(PriceType::class, $price);
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
-                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
-            }
-
-            $errors = $validator->validate($price);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($price);
-            $entityManager->flush();
-
-            if ($price) {
-                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+
+        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+            return View::create(
+                ['error' => 'The start date must be greater than the end date!'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $this->em->persist($price);
+        $this->em->flush();
+
+        return View::create(['message' => 'create success'], Response::HTTP_CREATED);
     }
 
     /**
      * @Rest\Patch("/prices/{id}", name="prices_edit")
+     * @param Prices $price
+     * @param Request
+     * @return View
      */
-    public function edit(Prices $price, Request $request, ValidatorInterface $validator): View
+    public function edit(Prices $price, Request $request): View
     {
-        $form = $this->createForm( PriceType::class, $price);
-
+        $form = $this->createForm(PriceType::class, $price);
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
-                return View::create(['error' => 'The start date must be greater than the end date!'], Response::HTTP_BAD_REQUEST);
-            }
-            $errors = $validator->validate($price);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
-
-            if ($price) {
-                return View::create(['message' => 'update success'], Response::HTTP_OK);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        if (strtotime($data['fromDate']) >= strtotime($data['toDate'])) {
+            return View::create(
+                ['error' => 'The start date must be greater than the end date!'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $this->em->flush();
+
+        return View::create(['message' => 'update success'], Response::HTTP_OK);
     }
 
     /**
      * @Rest\Delete("/prices/{id}", name="prices_delete")
+     * @param Prices $price
+     * @return View
      */
-    public function delete(Prices $price  ): View
+    public function delete(Prices $price): View
     {
         if ($price) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($price);
-            $entityManager->flush();
-            return View::create(['message' => 'delete success'], Response::HTTP_OK);
+            $this->em->remove($price);
+            $this->em->flush();
         }
+
+        return View::create(['message' => 'delete success'], Response::HTTP_OK);
     }
 }

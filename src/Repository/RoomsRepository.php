@@ -43,11 +43,11 @@ class RoomsRepository extends ServiceEntityRepository
         }
         if (!empty($fromDate)) {
             $data = $data->andWhere('p.fromDate <= :fromDate AND s.toDate >= :fromDate')
-                        ->setParameter('fromDate',$fromDate);
+                        ->setParameter('fromDate', $fromDate);
         }
         if (!empty($toDate)) {
             $data = $data->andWhere('p.toDate <= :toDate AND s.fromDate < :toDate')
-                ->setParameter('toDate',$toDate);
+                ->setParameter('toDate', $toDate);
         }
         $data = $data
             ->andWhere('s.amount > 0')
@@ -65,15 +65,16 @@ class RoomsRepository extends ServiceEntityRepository
             ->Join(Stocks::class, 's', Join::WITH, 'r.id = s.room')
             ->andWhere('s.room = :id')
             ->andWhere('p.room = :id')
-            ->setParameter('id',$id)
+            ->setParameter('id', $id)
             ->andWhere('s.fromDate >= p.fromDate AND s.toDate <= p.toDate')
-            ->select('r.id','s.fromDate','s.toDate','s.amount','p.price')
+            ->select('r.id', 's.fromDate', 's.toDate', 's.amount', 'p.price')
             ->orderBy('s.fromDate', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    public function checkStock(int $roomId, $fromDate, $toDate, $amount) {
+    public function checkStock(int $roomId, $fromDate, $toDate, $amount)
+    {
         $data = $this->createQueryBuilder('r')
             ->Join(Prices::class, 'p', Join::WITH, 'r.id = p.room')
             ->Join(Stocks::class, 's', Join::WITH, 'r.id = s.room')
@@ -84,9 +85,9 @@ class RoomsRepository extends ServiceEntityRepository
             ->andWhere('s.fromDate >= :fromDate AND s.toDate <= :toDate')
             ->setParameter('fromDate', $fromDate)
             ->setParameter('toDate', $toDate)
-            ->select('s.id','p.price','s.amount')
+            ->select('s.id', 'p.price', 's.amount')
             ->andWhere('s.amount >= :amount')
-            ->setParameter('amount',$amount)
+            ->setParameter('amount', $amount)
             ->getQuery()
             ->getResult()
             ;

@@ -1,5 +1,6 @@
 <?php
 namespace App\Form\DataTransformer;
+
 use App\Entity\User;
 
 use App\Repository\RoomsRepository;
@@ -42,6 +43,5 @@ class RoomTransformer implements DataTransformerInterface
             throw $failure;
         }
         return $room;
-
     }
 }

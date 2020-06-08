@@ -30,19 +30,20 @@ class GuestsRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('g')
             ->Join(User::class, 'u', Join::WITH, 'u.id = g.user')
             ->orderBy('g.id', 'ASC')
-            ->select('g.id','g.name','g.phone','g.email','u.id as user_id')
+            ->select('g.id', 'g.name', 'g.phone', 'g.email', 'u.id as user_id')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
 
-    public function listGuestBooking ($guest) {
+    public function listGuestBooking($guest)
+    {
         return $this->createQueryBuilder('g')
             ->andWhere('g.id IN :array')
-            ->setParameter('array',$guest)
+            ->setParameter('array', $guest)
             ->orderBy('g.id', 'ASC')
-            ->select('g.id','g.name','g.phone','g.email')
+            ->select('g.id', 'g.name', 'g.phone', 'g.email')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()

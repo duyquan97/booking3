@@ -36,10 +36,10 @@ class ShowBookingVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'BOOKING':
-                if ($subject->getUser() == $user && $this->security->isGranted('ROLE_USER')){
+                if ($subject->getUser() == $user && $this->security->isGranted('ROLE_USER')) {
                     return true;
                 }
-                if ( $this->security->isGranted('ROLE_ADMIN')){
+                if ($this->security->isGranted('ROLE_ADMIN')) {
                     return true;
                 }
                 return false;

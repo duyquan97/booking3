@@ -15,7 +15,7 @@ class RoomsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name',TextType::class,[
+            ->add('name', TextType::class, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
@@ -25,7 +25,7 @@ class RoomsType extends AbstractType
             ])
             ->add('short_description')
             ->add('description')
-            ->add('province',null,[
+            ->add('province', null, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
@@ -33,7 +33,7 @@ class RoomsType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('district',null,[
+            ->add('district', null, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
@@ -41,7 +41,7 @@ class RoomsType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('street',null,[
+            ->add('street', null, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
@@ -49,7 +49,7 @@ class RoomsType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('person',NumberType::class,[
+            ->add('person', NumberType::class, [
                 'required' => true,
                 'constraints' => [
                     new NotBlank([
@@ -57,15 +57,15 @@ class RoomsType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('type',NumberType::class,[
+            ->add('type', NumberType::class, [
                 'constraints' => [
                     new NotBlank([
                         'message' => 'fromDate not blank'
                     ]),
                 ]
             ])
-            ->add('status',NumberType::class)
-            ->add('featured',NumberType::class)
+            ->add('status', NumberType::class)
+            ->add('featured', NumberType::class)
         ;
     }
 

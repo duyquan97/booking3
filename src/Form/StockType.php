@@ -30,7 +30,7 @@ class StockType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('fromDate', DateType::class,[
+            ->add('fromDate', DateType::class, [
                 'required' => true,
                 'widget' => 'single_text',
                 'html5' => false,
@@ -40,7 +40,7 @@ class StockType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('toDate',DateType::class,[
+            ->add('toDate', DateType::class, [
                 'required' => true,
                 'widget' => 'single_text',
                 'html5' => false,
@@ -51,7 +51,7 @@ class StockType extends AbstractType
                 ]
             ])
             ->add(
-                $builder->create('room',TextType::class,[
+                $builder->create('room', TextType::class, [
                     'invalid_message' => 'That is not a valid room number',
                     'required' => true,
                     'constraints' => [
@@ -59,7 +59,8 @@ class StockType extends AbstractType
                             'message' => 'room not blank'
                         ]),
                     ]])
-                    ->addModelTransformer($this->roomTransformer))
+                ->addModelTransformer($this->roomTransformer)
+            )
         ;
     }
 

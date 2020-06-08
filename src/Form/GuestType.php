@@ -16,14 +16,14 @@ class GuestType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name',TextType::class,[
+            ->add('name', TextType::class, [
                 'constraints' => [
                     new NotBlank([
                         'message' => 'phone not blank!'
                     ]),
                 ]
             ])
-            ->add('phone',TextType::class,[
+            ->add('phone', TextType::class, [
                 'constraints' => [
                     new NotBlank([
                         'message' => 'phone not blank!'

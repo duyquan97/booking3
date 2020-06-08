@@ -34,15 +34,10 @@ class BookingRepository extends ServiceEntityRepository
             ->Join(Rooms::class, 'r', Join::WITH, 'r.id = b.room')
 //            ->Join(Guests::class, 'g', Join::WITH, 'g.id = b.guest')
             ->Join(User::class, 'u', Join::WITH, 'u.id = b.user')
-            ->select('b.id','b.code','b.price','b.fromDate','b.toDate','b.amount','b.accept','r.id as room_id','u.id as user_id')
+            ->select('b.id', 'b.code', 'b.price', 'b.fromDate', 'b.toDate', 'b.amount', 'b.accept', 'r.id as room_id', 'u.id as user_id')
             ->orderBy('b.id', 'ASC')
             ->getQuery()
             ->getResult()
         ;
     }
-
-
-
-
-
 }

@@ -35,7 +35,7 @@ class CreateBookingVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'CREATE_BOOKING':
-                if ( !$this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SUPER_ADMIN')){
+                if (!$this->security->isGranted('ROLE_ADMIN') || $this->security->isGranted('ROLE_SUPER_ADMIN')) {
                     return true;
                 }
 

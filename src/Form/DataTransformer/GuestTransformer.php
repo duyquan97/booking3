@@ -1,5 +1,6 @@
 <?php
 namespace App\Form\DataTransformer;
+
 use App\Entity\User;
 
 use App\Repository\GuestsRepository;
@@ -43,6 +44,5 @@ class GuestTransformer implements DataTransformerInterface
             throw $failure;
         }
         return $guest;
-
     }
 }

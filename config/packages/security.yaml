@@ -24,6 +24,7 @@ security:
                     - App\Security\LoginAuthenticator
             logout:
                 path: /logout
+            access_denied_handler: App\Security\AccessDeniedHandler
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -37,5 +38,4 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
          - { path: ^/api/prices, roles: ROLE_ADMIN }
          - { path: ^/api/stocks, roles: ROLE_ADMIN }
-         - { path: ^/api/guest, roles: ROLE_USER }
-         - { path: ^/api/user, roles: ROLE_USER }
+         - { path: ^/api, roles: ROLE_USER }

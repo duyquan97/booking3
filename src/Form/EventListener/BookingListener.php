@@ -25,19 +25,20 @@ class BookingListener implements EventSubscriberInterface
         ];
     }
 
-    public function onPreSetDate(FormEvent $event) {
+    public function onPreSetDate(FormEvent $event)
+    {
         $form = $event->getForm();
         $booking = $event->getData();
         if ($booking->getId() != null) {
             $form->add('accept', NumberType::class);
         }
     }
-    public function onSubmit(FormEvent $event) {
+    public function onSubmit(FormEvent $event)
+    {
         $booking = $event->getData();
-        if ($booking->getId() == null ) {
+        if ($booking->getId() == null) {
             $booking->setCode('BK' . strtoupper(uniqid()));
             $booking->setAccept(0);
         }
     }
-
 }

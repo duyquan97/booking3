@@ -6,30 +6,31 @@ use App\Entity\Rooms;
 use App\Form\RoomsType;
 use App\Repository\RoomsRepository;
 use Cocur\Slugify\Slugify;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
-use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 
 class RoomsController extends AbstractFOSRestController
 {
     private $roomsRepository;
-    public function __construct(RoomsRepository $roomsRepository)
-    {
+    private $em;
+
+    public function __construct(
+        RoomsRepository $roomsRepository,
+        EntityManagerInterface $em
+    ) {
         $this->roomsRepository = $roomsRepository;
+        $this->em = $em;
     }
 
     /**
      * @Rest\Get("/rooms/", name="rooms_index")
      * @param Request $request
      * @return View
-     *
      */
     public function index(Request $request): View
     {
@@ -37,7 +38,7 @@ class RoomsController extends AbstractFOSRestController
         $toPrice = $request->query->get('toPrice') ?? $toPrice = 0;
         $fromDate = $request->query->get('fromDate') ?? $fromDate = '';
         $toDate = $request->query->get('toDate') ?? $toDate = '';
-        $data = $this->roomsRepository->findBySearch( $fromPrice, $toPrice, $fromDate, $toDate);
+        $data = $this->roomsRepository->findBySearch($fromPrice, $toPrice, $fromDate, $toDate);
 
         return View::create($data, Response::HTTP_OK);
     }
@@ -45,37 +46,31 @@ class RoomsController extends AbstractFOSRestController
     /**
      * @Rest\Post("/rooms", name="rooms_new")
      * @IsGranted("ROLE_ADMIN")
+     * @param Request$request
+     * @return View
      */
-    public function new(Request $request, ValidatorInterface $validator): View
+    public function new(Request $request): View
     {
         $slugify = new Slugify();
         $room =  new Rooms();
-        $form = $this->createForm( RoomsType::class, $room);
-
+        $form = $this->createForm(RoomsType::class, $room);
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
-
-            $errors = $validator->validate($room);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($room);
-            $entityManager->flush();
-
-            if ($room) {
-                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
+        $this->em->persist($room);
+        $this->em->flush();
+
+        return View::create(['message' => 'create success'], Response::HTTP_CREATED);
     }
 
     /**
      * @Rest\Get("/rooms/{id}", name="rooms_show")
+     * @param Int $id
+     * @return View
      */
     public function show(int $id): View
     {
@@ -85,41 +80,39 @@ class RoomsController extends AbstractFOSRestController
     /**
      * @Rest\Patch("/rooms/{id}", name="rooms_edit")\
      * @IsGranted("ROLE_ADMIN")
+     * @param Rooms $room
+     * @param Request
+     * @return View
      */
-    public function edit(Rooms $room, Request $request, ValidatorInterface $validator): View
+    public function edit(Rooms $room, Request $request): View
     {
         $slugify = new Slugify();
-        $form = $this->createForm( RoomsType::class, $room);
+        $form = $this->createForm(RoomsType::class, $room);
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
-
-            $errors = $validator->validate($room);
-            if (count($errors) > 0) {
-                return View::create(['error' => $errors->get(1)->getMessage()], Response::HTTP_BAD_REQUEST);
-            }
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
-            if ($room) {
-                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
+        $this->em->flush();
+
+        return View::create(['message' => 'create success'], Response::HTTP_CREATED);
     }
 
     /**
      * @Rest\Delete("/rooms/{id}", name="rooms_delete")
      * @IsGranted("ROLE_ADMIN")
+     * @param Rooms $room
+     * @return View
      */
     public function delete(Rooms $room): View
     {
         if ($room) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($room);
-            $entityManager->flush();
-            return View::create(['message' => 'delete success'], Response::HTTP_OK);
+            $this->em->remove($room);
+            $this->em->flush();
         }
+
+        return View::create(['message' => 'delete success'], Response::HTTP_OK);
     }
 }

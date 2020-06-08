@@ -3,31 +3,24 @@
 namespace App\Controller\Rest;
 
 use App\Entity\Guests;
-use App\Entity\Prices;
-use App\Entity\Rooms;
 use App\Form\GuestType;
 use App\Repository\GuestsRepository;
-use App\Repository\PricesRepository;
-use App\Repository\RoomsRepository;
-use Cocur\Slugify\Slugify;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\ErrorHandler\Error\FatalError;
-use Symfony\Component\HttpFoundation\File\Exception\FormSizeFileException;
-use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-
 
 class GuestsController extends AbstractFOSRestController
 {
     private $guestsRepository;
-    public function __construct(GuestsRepository $guestsRepository)
+    private $em;
+
+    public function __construct(GuestsRepository $guestsRepository, EntityManagerInterface $em)
     {
         $this->guestsRepository = $guestsRepository;
+        $this->em = $em;
     }
 
     /**
@@ -41,78 +34,78 @@ class GuestsController extends AbstractFOSRestController
         if ($guest) {
             return View::create($this->guestsRepository->getGuests(), Response::HTTP_OK);
         }
+
         return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
     }
 
     /**
      * @Rest\Post("/guests", name="guests_new")
+     * @param Request $request
+     * @return View
      *
      */
-    public function new(Request $request, ValidatorInterface $validator): View
+    public function new(Request $request): View
     {
         $guest = new Guests();
-        $form = $this->createForm( GuestType::class, $guest);
+        $form = $this->createForm(GuestType::class, $guest);
         $user = $this->getUser();
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-
-        if ($form->isSubmitted() && $form->isValid() ) {
-            $guest->setUser($user);
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($guest);
-            $entityManager->flush();
-
-            if ($guest) {
-                return View::create(['message' => 'create success'], Response::HTTP_CREATED);
-            }
+        if (!$form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
+        $guest->setUser($user);
+        $this->em->persist($guest);
+        $this->em->flush();
 
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        return View::create(['message' => 'create success'], Response::HTTP_CREATED);
     }
 
     /**
      * @Rest\get("/guests/{id}", name="guests_show")
+     * @param Guests $guest
+     * @return View
      */
     public function show(Guests $guest): View
     {
         return View::create($guest, Response::HTTP_OK);
     }
 
-
     /**
      * @Rest\Patch("/guests/{id}", name="guests_edit")
+     * @param Guests $guest
+     * @param Request $request
+     * @return View
      */
-    public function edit(Guests $guest, Request $request, ValidatorInterface $validator): View
+    public function edit(Guests $guest, Request $request): View
     {
-        $form = $this->createForm( GuestType::class, $guest);
-
+        $form = $this->createForm(GuestType::class, $guest);
         $user = $this->getUser();
         $body = $request->getContent();
         $data = json_decode($body, true);
         $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $guest->setUser($user);
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->flush();
-            if ($guest) {
-                return View::create(['message' => 'update success'], Response::HTTP_OK);
-            }
+        if ($form->isValid()) {
+            return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
+        $guest->setUser($user);
+        $this->em->flush();
+
+        return View::create(['message' => 'update success'], Response::HTTP_OK);
     }
 
     /**
      * @Rest\Delete("/guests/{id}", name="guests_delete")
+     * @param Guests $guest
+     * @return View
      */
-    public function delete(Guests $guest ): View
+    public function delete(Guests $guest): View
     {
         if ($guest) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($guest);
-            $entityManager->flush();
-            return View::create(['message' => 'delete success'], Response::HTTP_OK);
+            $this->em->remove($guest);
+            $this->em->flush();
         }
-        return View::create(['error' => 'no data'], Response::HTTP_FORBIDDEN);
+
+        return View::create(['message' => 'delete success'], Response::HTTP_OK);
     }
 }
