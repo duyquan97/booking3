@@ -25,6 +25,8 @@ security:
             logout:
                 path: /logout
             access_denied_handler: App\Security\AccessDeniedHandler
+            http_basic:
+                realm: Secured Area
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
