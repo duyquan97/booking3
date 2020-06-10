@@ -5,7 +5,6 @@ namespace App\Controller\Rest;
 use App\Entity\Rooms;
 use App\Form\RoomsType;
 use App\Repository\RoomsRepository;
-use Cocur\Slugify\Slugify;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\View\View;
@@ -51,7 +50,7 @@ class RoomsController extends AbstractFOSRestController
      */
     public function new(Request $request): View
     {
-        $slugify = new Slugify();
+
         $room =  new Rooms();
         $form = $this->createForm(RoomsType::class, $room);
         $body = $request->getContent();
@@ -60,7 +59,7 @@ class RoomsController extends AbstractFOSRestController
         if (!$form->isValid()) {
             return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
+        $room->setSlug(strtoupper(uniqid()).''.str_replace(' ', $data['name']));
         $this->em->persist($room);
         $this->em->flush();
 
@@ -86,7 +85,7 @@ class RoomsController extends AbstractFOSRestController
      */
     public function edit(Rooms $room, Request $request): View
     {
-        $slugify = new Slugify();
+
         $form = $this->createForm(RoomsType::class, $room);
         $body = $request->getContent();
         $data = json_decode($body, true);
@@ -94,7 +93,7 @@ class RoomsController extends AbstractFOSRestController
         if (!$form->isValid()) {
             return View::create(['error' => $form->getErrors()->getForm()], Response::HTTP_BAD_REQUEST);
         }
-        $room->setSlug($slugify->slugify(strtoupper(uniqid()).''.$request->request->get('name')));
+        $room->setSlug(strtoupper(uniqid()).''.str_replace(' ', $data['name']));
         $this->em->flush();
 
         return View::create(['message' => 'create success'], Response::HTTP_CREATED);

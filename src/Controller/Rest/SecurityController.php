@@ -23,11 +23,12 @@ class SecurityController extends AbstractFOSRestController
     /**
       * @Rest\Post("/register", name="api_register")
       * @param Request $request
-      * @param EntityManagerInterface
+      * @param EntityManagerInterface $em
       * @return View
       */
     public function register(Request $request, EntityManagerInterface $em)
     {
+
         $user = new User();
         $body = $request->getContent();
         $data = json_decode($body, true);
@@ -43,15 +44,6 @@ class SecurityController extends AbstractFOSRestController
         $em->flush();
 
         return View::create(['message' => 'create user success'], Response::HTTP_OK);
-    }
-
-    /**
-    * @Rest\Post("/access/denied", name="access_denied")
-     * @return View
-    */
-    public function accessDenied()
-    {
-        return View::create(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
     }
 
     /**

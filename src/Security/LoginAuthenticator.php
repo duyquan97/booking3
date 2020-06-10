@@ -20,6 +20,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
     }
     public function supports(Request $request)
     {
+
         return $request->get("_route") === "api_login" && $request->isMethod("POST");
     }
 
