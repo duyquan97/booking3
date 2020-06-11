@@ -3,6 +3,7 @@
 namespace App\Controller\Rest;
 
 use App\Entity\Rooms;
+use App\EventListener\ExceptionListener;
 use App\Form\RoomsType;
 use App\Repository\RoomsRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class RoomsController extends AbstractFOSRestController
 {
