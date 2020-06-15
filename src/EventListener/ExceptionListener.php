@@ -8,7 +8,5 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class ExceptionListener
 {
-    public function onKernelException(ResponseEvent $event)
-    {
-    }
+
 }

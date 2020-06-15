@@ -20,22 +20,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d86a400c-d628-4772-bc6c-16e9b16879a0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Command/HelloCommand.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/EventListener/RedirectAfterRegistration.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/EventListener/UserAgentSubscriber.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/bundles/FOSUserBundle/Registration/register_content.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/bundles/FOSUserBundle/layout.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/translations/bundles/FOSUserBundle/FOSUserBundle.en.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Entity/Dinosaur.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Entity/Enclosure.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Factory/DinosaurFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Test/Controller/PostControllerTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Util/Calculator.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Factory/DinosaurFactoryTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Factory/EnclosureTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Util/BookingTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Util/CalculatorTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/Util/DinosaurFactoryTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/fos_user.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/fos_user.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/security.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/security.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/packages/twig.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/twig.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config/services.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/services.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Rest/RoomsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Rest/RoomsController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/TestController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/TestController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EventListener/UserAgentSubscriber.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/EventListener/UserAgentSubscriber.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -180,7 +182,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/EventListener" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../design_pattern" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -188,21 +190,29 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="php.override.implement.member.chooser.php.doc" value="NONE" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="web-ide.project.structure" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/templates/bundles/FOSUserBundle" />
-      <recent name="$PROJECT_DIR$/templates/bundles" />
-      <recent name="$PROJECT_DIR$/templates/FOSUserBundle/View" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/tests/Util" />
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/EventListener" />
       <recent name="$PROJECT_DIR$/src/Form/bundles/FOSUserBundle" />
-      <recent name="$PROJECT_DIR$/src/Form" />
-      <recent name="$PROJECT_DIR$/translations" />
-      <recent name="$PROJECT_DIR$/templates/bundles/FOSUserBundle/Views" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/tests" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/src/Controller/Test/Controller" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/templates/bundles/FOSUserBundle" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="phpunit.xml.dist" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner scope="XML" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -227,7 +237,9 @@
       <workItem from="1591689136630" duration="4608000" />
       <workItem from="1591756829131" duration="1958000" />
       <workItem from="1591760438836" duration="11460000" />
-      <workItem from="1591841732597" duration="23135000" />
+      <workItem from="1591841732597" duration="23192000" />
+      <workItem from="1591929019764" duration="22904000" />
+      <workItem from="1592187340329" duration="3013000" />
     </task>
     <servers />
   </component>
@@ -256,34 +268,42 @@
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="779" y="224" width="419" height="657" key="#com.intellij.ide.util.MemberChooser/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591862625837" />
-    <state x="680" y="27" width="608" height="1053" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1591857125535">
+    <state x="680" y="27" width="608" height="1053" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1591944280609">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="680" y="27" width="608" height="1053" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591857125535" />
+    <state x="680" y="27" width="608" height="1053" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591944280609" />
     <state x="726" y="310" width="524" height="484" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1591867900566">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="726" y="310" width="524" height="484" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591867900566" />
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1591843275654">
+    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl" timestamp="1592187886353">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591843275654" />
-    <state x="482" y="187" key="SettingsEditor" timestamp="1591847580571">
+    <state x="776" y="310" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1592187886353" />
+    <state x="482" y="187" key="SettingsEditor" timestamp="1591936854630">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="482" y="187" key="SettingsEditor/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591847580571" />
+    <state x="482" y="187" key="SettingsEditor/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591936854630" />
     <state x="167" y="125" width="1653" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1591601171983">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="167" y="125" width="1653" height="855" key="com.intellij.history.integration.ui.views.FileHistoryDialog/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591601171983" />
-    <state x="648" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1591350979582">
+    <state x="648" y="380" key="com.intellij.ide.util.TipDialog" timestamp="1592187522055">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="648" y="380" key="com.intellij.ide.util.TipDialog/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591350979582" />
+    <state x="648" y="380" key="com.intellij.ide.util.TipDialog/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1592187522055" />
+    <state x="696" y="175" width="585" height="755" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1592202158268">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="696" y="175" width="585" height="755" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1592202158268" />
     <state x="684" y="291" width="749" height="554" key="find.popup" timestamp="1591865829571">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
     <state x="684" y="291" width="749" height="554" key="find.popup/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591865829571" />
+    <state x="657" y="253" key="run.anything.popup" timestamp="1591953060691">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="657" y="253" key="run.anything.popup/67.27.1853.1053/1920.0.1920.1080@67.27.1853.1053" timestamp="1591953060691" />
     <state x="656" y="257" key="search.everywhere.popup" timestamp="1591862533744">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>

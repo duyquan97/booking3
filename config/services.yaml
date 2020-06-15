@@ -35,7 +35,3 @@ services:
         class: App\EventListener\RedirectAfterRegistration
         tags:
             - { name: kernel.event_subscriber }
-
-    App\EventListener\ExceptionListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.exception }

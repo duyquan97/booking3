@@ -37,11 +37,16 @@
         "symfony/yaml": "4.4.*"
     },
     "require-dev": {
+        "symfony/browser-kit": "4.4.*",
+        "symfony/css-selector": "4.4.*",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
+        "symfony/phpunit-bridge": "^5.1",
         "symfony/profiler-pack": "^1.0",
         "symfony/test-pack": "*",
-        "symfony/web-server-bundle": "4.4.*"
+        "symfony/web-server-bundle": "4.4.*",
+        "phpunit/phpunit": "*"
+
     },
     "config": {
         "preferred-install": {

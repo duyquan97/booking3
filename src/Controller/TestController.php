@@ -12,7 +12,7 @@ class TestController extends AbstractController
     /**
      * @Route("/", name="test")
      */
-    public function index(LoggerInterface $logger, EventDispatcherInterface $dispatcher)
+    public function index(LoggerInterface $logger)
     {
         $logger->info('Inside the controller');
         return $this->render('test/index.html.twig', [
